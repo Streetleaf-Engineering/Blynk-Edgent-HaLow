@@ -2,7 +2,8 @@
 #define JsonWriter_h
 
 #include <stdarg.h>
-#include <Arduino.h>
+#include "tinyArduino.h"
+#include "wiring_json.h"
 
 class JsonWriter {
 public:

@@ -6,7 +6,8 @@
 
 #include "BlynkInject.h"
 #include "BlynkSysUtils.h"
-#include <JsonWriter.h>
+#include "json.h"
+#include "JsonWriter.h"
 
 LOG_DEFINE_MODULE("blynk.inject")
 
@@ -39,6 +40,9 @@ void BlynkInject::begin(String name, String vendor, String tmpl_id, String fw_ty
 #ifdef NetMgr_Cellular
     NetMgrCellular.startConfig();
 #endif
+#ifdef MM_WiFi_HaLow
+    NetMgrHaLow.startConfig();
+#endif
 
     _ble.begin(_name.c_str());
     LOG_I_MOD("BLE-assisted provisioning started");
@@ -60,8 +64,7 @@ void BlynkInject::run() {
 
 void BlynkInject::parse_message() {
     if (!_ble.available()) return;
-
-    String cmd = _ble.read();
+    std::string cmd = _ble.read();
     JSONValue outerObj = JSONValue::parse((char*)cmd.c_str(), cmd.length());
     if (outerObj.type() != JSON_TYPE_OBJECT) {
       sendMsg(R"json({"t":"error","msg":"wrong format"})json");
@@ -192,9 +195,24 @@ void BlynkInject::parse_message() {
           delay(10);
         }
 #endif
+#ifdef MM_WiFi_HaLow
+        if (NetMgrHaLow.isHardwareAvailable()) {
+          JsonBufferWriter writer(buff, sizeof(buff));
+          writer.beginObject();
+            writer["t"     ] = "if";
+            writer["name"  ] = "wifi";
+            writer["mac"   ] = NetMgrHaLow.getMacAddress();
+            writer["scan"  ] = NetMgrHaLow.supportsScan()?1:0;
+            writer["5ghz"  ] = NetMgrHaLow.supports5GHz()?1:0;
+            writer["static_ip"] = NetMgrHaLow.supportsStaticIP()?1:0;
+          writer.endObject();
+          sendMsg(writer.buffer(), writer.dataSize());
+          delay(10);
+        }
+#endif
         sendMsg(R"json({"t":"ifs_end"})json");
     } else if (t == "scan") {
-#ifdef NetMgr_WiFi
+#if defined(NetMgr_WiFi)
         LOG_I_MOD("Scanning WiFi");
         sendMsg(R"json({"t":"scan_start"})json");
 
@@ -226,8 +244,41 @@ void BlynkInject::parse_message() {
 
         sendMsg(R"json({"t":"scan_end"})json");
         NetMgrWiFi.scanDelete();
+#elif defined(MM_WiFi_HaLow)
+        LOG_I_MOD("Scanning Wi-Fi HaLow");
+        sendMsg(R"json({"t":"scan_start"})json");
+
+        int wifi_nets = NetMgrHaLow.scanNetworks();
+        LOG_I_MOD("Found networks: %d", wifi_nets);
+        if (wifi_nets > 15) {
+            wifi_nets = 15;
+        }
+
+        char buff[256];
+        for (int i = 0; i < wifi_nets; i++) {
+          String ssid, sec, bssid;
+          int chan = -1, rssi = 0;
+          NetMgrHaLow.scanGetResult(i, ssid, sec, rssi, bssid, chan);
+          // skip weak and hidden networks
+          if (rssi >= -90 && ssid.length()) {
+
+            JsonBufferWriter writer(buff, sizeof(buff));
+            writer.beginObject();
+              writer["t"     ] = "scan";
+              writer["ssid"  ] = ssid;
+              writer["bssid" ] = bssid;
+              writer["rssi"  ] = rssi;
+              writer["sec"   ] = sec;
+              writer["ch"    ] = chan;
+            writer.endObject();
+            sendMsg(writer.buffer(), writer.dataSize());
+            delay(10);
+          }
+        }
+        sendMsg(R"json({"t":"scan_end"})json");
+        NetMgrHaLow.scanDelete();
 #else
-        sendMsg(R"json({"t":"error","msg":"no wifi"})json");
+    sendMsg(R"json({"t":"error","msg":"no wifi"})json");
 #endif
     } else if (t == "reset") {
 #ifdef NetMgr_WiFi

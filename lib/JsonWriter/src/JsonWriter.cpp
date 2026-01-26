@@ -225,7 +225,7 @@ void JsonWriter::writeEscaped(const char *str, size_t size) {
 // JsonBufferWriter
 void JsonBufferWriter::write(const char *data, size_t size) {
     if (_n < _buf_size) {
-        memcpy(_buf + _n, data, min(size, _buf_size - _n));
+        memcpy(_buf + _n, data, std::min(size, _buf_size - _n));
     }
     _n += size;
 }

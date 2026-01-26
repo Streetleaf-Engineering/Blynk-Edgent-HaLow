@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <Arduino.h>
+#include "tinyArduino.h"
 
 #if defined(BLYNK_USE_LITTLEFS)
   #include <LittleFS.h>
@@ -83,7 +83,7 @@ public:
     const uint64_t now = systemUptime();
     const uint32_t delta_secs = (now - _last_connected_change) / 1000;
     total_offline_time += delta_secs;
-    max_offline_time = max(max_offline_time, delta_secs);
+    max_offline_time = std::max(max_offline_time, delta_secs);
     _last_connected_change = now;
   }
 
@@ -91,7 +91,7 @@ public:
     const uint64_t now = systemUptime();
     const uint32_t delta_secs = (now - _last_connected_change) / 1000;
     total_online_time += delta_secs;
-    max_online_time = max(max_online_time, delta_secs);
+    max_online_time = std::max(max_online_time, delta_secs);
     _last_connected_change = now;
   }
 

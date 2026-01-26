@@ -118,6 +118,28 @@
     #define LOG_D(fmt, ...)       Log.trace(fmt, ##__VA_ARGS__)
     #define LOG_D_MOD(fmt, ...)   local_logger.trace(fmt, ##__VA_ARGS__)
   #endif
+#elif defined(STM32) || defined(STM32U5xx) || defined(__ARM_ARCH)
+  #include <stdio.h>
+  #ifndef LOGGER_TIME
+    #define LOGGER_TIME 0
+  #endif
+  #define LOG_DEFINE_MODULE(name) static const char* LOG_TAG = name;
+  #if LOGGER_LOG_LEVEL >= LOGGER_LEVEL_ERROR
+    #define LOG_E(fmt, ...)       printf("[E] " fmt "\r\n", ##__VA_ARGS__)
+    #define LOG_E_MOD(fmt, ...)   printf("[E][%s] " fmt "\r\n", LOG_TAG, ##__VA_ARGS__)
+  #endif
+  #if LOGGER_LOG_LEVEL >= LOGGER_LEVEL_WARN
+    #define LOG_W(fmt, ...)       printf("[W] " fmt "\r\n", ##__VA_ARGS__)
+    #define LOG_W_MOD(fmt, ...)   printf("[W][%s] " fmt "\r\n", LOG_TAG, ##__VA_ARGS__)
+  #endif
+  #if LOGGER_LOG_LEVEL >= LOGGER_LEVEL_INFO
+    #define LOG_I(fmt, ...)       printf("[I] " fmt "\r\n", ##__VA_ARGS__)
+    #define LOG_I_MOD(fmt, ...)   printf("[I][%s] " fmt "\r\n", LOG_TAG, ##__VA_ARGS__)
+  #endif
+  #if LOGGER_LOG_LEVEL >= LOGGER_LEVEL_DEBUG
+    #define LOG_D(fmt, ...)       printf("[D] " fmt "\r\n", ##__VA_ARGS__)
+    #define LOG_D_MOD(fmt, ...)   printf("[D][%s] " fmt "\r\n", LOG_TAG, ##__VA_ARGS__)
+  #endif
 #endif
 
 #ifndef LOG_DEFINE_MODULE

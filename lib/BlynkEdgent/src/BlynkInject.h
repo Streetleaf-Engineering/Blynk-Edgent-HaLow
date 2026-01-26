@@ -5,6 +5,7 @@
  */
 
 #include <NetMgr.h>
+#include "NetMgrLogger.h"
 
 #if defined(PARTICLE)
   #include "ConfigSparkBLE.h"
@@ -13,6 +14,9 @@
 #elif defined(ESP32)
   #include "ConfigNimBLE.h"
   //#include "ConfigBluedroid.h"
+#elif defined(MM_WiFi_HaLow)
+  #include "ConfigBLE_Blynk.h"
+  #include "tinyArduino.h"
 #endif
 
 class BlynkInject {
@@ -55,6 +59,10 @@ public:
         String    ip, mask, gw, dns, dns2;
         bool      forceSave;
     } _config;
+
+    #ifdef MM_WiFi_HaLow
+    void bleRx(const uint8_t* data, size_t len) { _ble.onWrite(data, len); }
+    #endif
 
 private:
     void parse_message();

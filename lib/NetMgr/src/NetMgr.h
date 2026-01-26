@@ -11,6 +11,9 @@
 #elif defined(ARDUINO)
   #include <Arduino.h>
   #include <IPAddress.h>
+#elif defined(MM_WiFi_HaLow)
+  #include "tinyArduino.h"
+  #include "IPAddress.h"
 #endif
 
 #include <NetMgrLogger.h>
@@ -75,6 +78,11 @@
     extern NetMgrCellularClass NetMgrCellular;
   #endif
 
+#elif defined(MM_WiFi_HaLow)
+        #include <nm_HaLow/NetMgrHaLow.h>
+        #define NetMgr_HaLow 1
+        typedef NetMgrWiFiHaLow NetMgrHaLowClass;
+        extern NetMgrHaLowClass NetMgrHaLow;
 #endif
 
 // Detect a common typo in NetMgr_WiFi
@@ -90,6 +98,9 @@ struct NetMgrClass {
 #if defined(NetMgr_WiFi)
         NetMgrWiFi.setHostname(hostname);
 #endif
+#if defined(NetMgr_HaLow)
+        NetMgrHaLow.setHostname(hostname);
+#endif
     }
 
     void begin() {
@@ -104,6 +115,9 @@ struct NetMgrClass {
 #if defined(NetMgr_Cellular)
         NetMgrCellular.begin();
 #endif
+#if defined(NetMgr_HaLow)
+        NetMgrHaLow.begin();
+#endif
     }
 
     void run() {
@@ -115,6 +129,9 @@ struct NetMgrClass {
 #endif
 #ifdef NetMgr_Cellular
         NetMgrCellular.run();
+#endif
+#ifdef NetMgr_HaLow
+        NetMgrHaLow.run();
 #endif
     }
 
@@ -128,6 +145,9 @@ struct NetMgrClass {
 #ifdef NetMgr_Cellular
         NetMgrCellular.on();
 #endif
+#ifdef NetMgr_HaLow
+        NetMgrHaLow.on();
+#endif
     }
 
     void allOff() {
@@ -140,6 +160,9 @@ struct NetMgrClass {
 #ifdef NetMgr_Cellular
         NetMgrCellular.off();
 #endif
+#ifdef NetMgr_HaLow
+        NetMgrHaLow.off();
+#endif
     }
 
     bool isAnyConnected() {
@@ -151,6 +174,9 @@ struct NetMgrClass {
 #endif
 #ifdef NetMgr_Cellular
         if (NetMgrCellular.isConnected()) { return true; }
+#endif
+#ifdef NetMgr_HaLow
+        if (NetMgrHaLow.isConnected()) { return true; }
 #endif
         return false;
     }
@@ -165,6 +191,9 @@ struct NetMgrClass {
 #ifdef NetMgr_Cellular
         if (NetMgrCellular.isConfigured()) { return true; }
 #endif
+#ifdef NetMgr_HaLow
+        if (NetMgrHaLow.isConfigured()) { return true; }
+#endif
         return false;
     }
 
@@ -177,6 +206,9 @@ struct NetMgrClass {
 #endif
 #ifdef NetMgr_Cellular
         NetMgrCellular.clearNetworks();
+#endif
+#ifdef NetMgr_HaLow
+        NetMgrHaLow.clearNetworks();
 #endif
     }
 

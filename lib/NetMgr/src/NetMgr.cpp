@@ -19,6 +19,10 @@ NetMgrClass NetMgr;
   NetMgrCellularClass NetMgrCellular;
 #endif
 
+#if defined(NetMgr_HaLow)
+  NetMgrHaLowClass NetMgrHaLow;
+#endif
+
 #ifndef ARDUINO_ISR_ATTR
 #define ARDUINO_ISR_ATTR
 #endif

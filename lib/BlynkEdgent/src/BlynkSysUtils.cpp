@@ -31,6 +31,8 @@
   #include <hardware/structs/watchdog.h>
 #elif defined(PARTICLE)
   #include "dct.h"
+#elif defined(STM32U585xx) || defined(STM32_PLATFORM)
+  #include "stm32u5xx_hal.h"
 #endif
 
 BLYNK_NOINIT_ATTR
@@ -164,6 +166,12 @@ String getDeviceRandomSuffix(unsigned size)
       NRF_FICR->DEVICEID[1],
       NRF_FICR->DEVICEID[0]
     };
+#elif defined(MM_WiFi_HaLow)
+    const uint32_t chipId[3] = {
+      HAL_GetUIDw0(),
+      HAL_GetUIDw1(),
+      HAL_GetUIDw2()
+    };
 #else
     #warning "Platform not supported"
     const uint32_t chipId = 0;
@@ -228,6 +236,8 @@ void systemReboot()
   rp2040.reboot();
 #elif defined(PARTICLE)
   System.reset();
+#elif defined(MM_WiFi_HaLow)
+// @TODO: Add STM32 systemReboot implementation
 #else
   #error "Platform not supported"
 #endif

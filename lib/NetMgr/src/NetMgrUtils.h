@@ -10,7 +10,11 @@
   #include <lwip/def.h>
 #endif
 
-#if defined(htons)
+#ifdef MM_WiFi_HaLow
+  #include "def.h"
+#endif
+
+#if defined(htons) || defined(MM_WiFi_HaLow)
   #define nm_hton16(x) htons(x)
   #define nm_hton32(x) htonl(x)
   #define nm_ntoh16(x) ntohs(x)
