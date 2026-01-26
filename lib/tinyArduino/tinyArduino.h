@@ -8,7 +8,7 @@
 #include <cstring>
 #include <string>
 #include <algorithm>
-#include "wString.h"
+#include "WString.h"
 #include "print.h"
 
 #if __has_include("cmsis_os2.h")
