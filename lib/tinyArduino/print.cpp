@@ -22,7 +22,7 @@
 #include <math.h>
 #include "tinyArduino.h"
 
-#include "Print.h"
+#include "print.h"
 
 #if defined (VIRTIO_LOG)
   #include "virtio_log.h"
