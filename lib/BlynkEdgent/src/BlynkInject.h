@@ -15,7 +15,7 @@
   #include "ConfigNimBLE.h"
   //#include "ConfigBluedroid.h"
 #elif defined(MM_WiFi_HaLow)
-  #include "ConfigBLE_Blynk.h"
+  #include "configBLE_Blynk.h"
   #include "tinyArduino.h"
 #endif
 
